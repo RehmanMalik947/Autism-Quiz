@@ -30,7 +30,7 @@ const SignUpScreen = () => {
   <View></View>
 </View>
 <Spacer/>
-<Button ButtonText='Sign Up' ButtonBg={COLORS.primary} TextColor='white' style={{width:'90%',marginInline:16}}/>
+<Button ButtonText='Sign Up' ButtonBg={COLORS.primary} TextColor='white' style={{width:'90%',marginInline:'auto'}}/>
   <View style={{flex:1,justifyContent:'flex-end',alignItems:'center'}}>
     <Text style={{fontSize:16}}>Already have an account?  SignIn </Text>
     </View> 
