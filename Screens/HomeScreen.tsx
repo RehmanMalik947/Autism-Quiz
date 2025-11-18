@@ -11,6 +11,7 @@ import {
   SPACING,
 } from '../Constants/Constants';
 import Button from '../Components/Button';
+import Spacer from '../Components/Spacer';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -18,28 +19,28 @@ const HomeScreen = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <Header
         title="Autism Quiz"
-        leftIcon={<ArrowLeft />}
-        onPressLeft={() => navigation.goBack()}
       />
       <View style={styles.container}>
+      <Spacer/>
         <Text numberOfLines={2} style={styles.Heading}>
           Welcome to the Autism Quiz
         </Text>
-        <View style={{ height: SPACING.xl }}></View>
+       <Spacer/>
         <Text numberOfLines={4} style={styles.subHeading}>
           This quiz is designed to understand if you might have any traits
           assosiated to autism.It's not a diagnostic tool but it can be helpful
           straight point.{' '}
         </Text>
-        <View style={{ height: SPACING.xl }}></View>
+       <Spacer/>
         <View style={styles.btnContainer}>
           <Button
             ButtonText="Login"
             TextColor="white"
             ButtonBg={COLORS.primary}
+            style={{width:'90%'}}
           />
-          <Button ButtonText="Sign Up" ButtonBg={COLORS.secondary} />
-          <Button ButtonText="Continue as Guest" />
+          <Button ButtonText="Sign Up" ButtonBg={COLORS.secondary} style={{width:'90%'}} />
+          <Button ButtonText="Continue as Guest"  style={{width:'90%'}}/>
         </View>
         <View>
           <Text style={styles.bottomText}>
@@ -47,7 +48,7 @@ const HomeScreen = () => {
             Policy.
           </Text>
         </View>
-        <View style={{ height: SPACING.xl }}></View>
+        <Spacer/>
       </View>
     </SafeAreaView>
   );

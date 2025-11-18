@@ -13,16 +13,17 @@ interface ButtonProps {
   ButtonBg?: string;
   style?: ViewStyle | ViewStyle[];
   TextColor?: string;
-  OnPress?:()=>void
+  OnPress?:()=>void,
+  defaultWidth?:string
 }
 
-const Button = ({ ButtonText, style, TextColor, ButtonBg,OnPress }: ButtonProps) => {
+const Button = ({ ButtonText, style, TextColor, ButtonBg,OnPress,defaultWidth }: ButtonProps) => {
   return (
     <TouchableOpacity
       style={[ButtonStyles.btn, style, { backgroundColor: ButtonBg }]}
       onPress={OnPress}
     >
-      <Text style={{ color: TextColor }}>{ButtonText}</Text>
+      <Text style={{ color: TextColor ,fontWeight:'bold',fontSize:16}}>{ButtonText}</Text>
     </TouchableOpacity>
   );
 };
@@ -32,10 +33,11 @@ export default Button;
 const ButtonStyles = StyleSheet.create({
   btn: {
     display: 'flex',
+    flexDirection:'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '90%',
     height: 48,
     borderRadius: RADIUS.sm,
+    
   },
 });
