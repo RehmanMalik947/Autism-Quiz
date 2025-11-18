@@ -2,7 +2,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../Components/Header';
-import { ArrowLeft } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   COLORS,
@@ -12,9 +11,10 @@ import {
 } from '../Constants/Constants';
 import Button from '../Components/Button';
 import Spacer from '../Components/Spacer';
+import { useTypedNavigation } from '../Hooks/useTypedNavigation';
 
 const HomeScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useTypedNavigation();
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Header
@@ -38,8 +38,9 @@ const HomeScreen = () => {
             TextColor="white"
             ButtonBg={COLORS.primary}
             style={{width:'90%'}}
+            OnPress={()=>navigation.navigate('Login')}
           />
-          <Button ButtonText="Sign Up" ButtonBg={COLORS.secondary} style={{width:'90%'}} />
+          <Button ButtonText="Sign Up" ButtonBg={COLORS.secondary} style={{width:'90%'}} OnPress={()=>navigation.navigate('SignUp')}/>
           <Button ButtonText="Continue as Guest"  style={{width:'90%'}}/>
         </View>
         <View>
@@ -82,6 +83,7 @@ const styles = StyleSheet.create({
   },
   bottomText: {
     textAlign: 'center',
+    fontSize:16,
     paddingHorizontal: 16,
   },
 });

@@ -4,13 +4,12 @@ import { RADIUS } from '../Constants/Constants';
 
 interface InputProps {
   placeholder?: string;
-  bgColor?: string;
   style?: ViewStyle;
 }
-const InputBox = ({ placeholder, bgColor, style }: InputProps) => {
+const InputBox = ({ placeholder, style }: InputProps) => {
   return (
     <TextInput
-      style={[TextInputStyles.input, style, { backgroundColor: bgColor }]}
+      style={[TextInputStyles.input, style, { backgroundColor: "#E8F0F2" }]}
       placeholder={placeholder}
     ></TextInput>
   );

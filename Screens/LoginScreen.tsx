@@ -14,8 +14,8 @@ const LoginScreen = () => {
       <View style={styles.container}>
       <Spacer/>
         <View style={styles.btnContainer}>
-          <InputBox placeholder="Email" bgColor="#E8F0F2" />
-          <InputBox placeholder="Password" bgColor="#E8F0F2" />
+          <InputBox placeholder="Email" />
+          <InputBox placeholder="Password" />
         </View>
         <Spacer />
         <View style={styles.forgetPass}>

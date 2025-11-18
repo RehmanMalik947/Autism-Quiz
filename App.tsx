@@ -9,7 +9,7 @@ import SignUpScreen from './Screens/SignUpScreen';
 const stack = createNativeStackNavigator();
 function RootLayout () {
   return (
-    <stack.Navigator initialRouteName="Login" screenOptions={{headerShown:false}}>
+    <stack.Navigator initialRouteName="Home" screenOptions={{headerShown:false}}>
       <stack.Screen name="Home" component={HomeScreen} />
       <stack.Screen name="Login" component={LoginScreen} />
       <stack.Screen name="SignUp" component={SignUpScreen} />
