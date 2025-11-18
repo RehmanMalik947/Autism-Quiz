@@ -35,7 +35,6 @@ const SignUpScreen = () => {
     <Text style={{fontSize:16}}>Already have an account?  SignIn </Text>
     </View> 
   <Spacer/>
-  <Spacer/>
     </SafeAreaView>
   )
 }
