@@ -13,7 +13,7 @@ import Button from '../Components/Button';
 import Spacer from '../Components/Spacer';
 import { useTypedNavigation } from '../Hooks/useTypedNavigation';
 
-const HomeScreen = () => {
+const StarterScreen = () => {
   const navigation = useTypedNavigation();
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -28,10 +28,11 @@ const HomeScreen = () => {
        <Spacer/>
         <Text numberOfLines={4} style={styles.subHeading}>
           This quiz is designed to understand if you might have any traits
-          assosiated to autism.{' '}
+          assosiated to autism.It's not a diagnostic tool but it can be helpful
+          straight point.{' '}
         </Text>
        <Spacer/>
-        {/* <View style={styles.btnContainer}>
+        <View style={styles.btnContainer}>
           <Button
             ButtonText="Login"
             TextColor="white"
@@ -41,7 +42,7 @@ const HomeScreen = () => {
           />
           <Button ButtonText="Sign Up" ButtonBg={COLORS.secondary} style={{width:'90%'}} OnPress={()=>navigation.navigate('SignUp')}/>
           <Button ButtonText="Continue as Guest"  style={{width:'90%'}}/>
-        </View> */}
+        </View>
         <View>
           <Text style={styles.bottomText}>
             By continuing this,you agree to our Terms of Service and Privacy
@@ -54,7 +55,7 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
+export default StarterScreen;
 
 const styles = StyleSheet.create({
   container: {

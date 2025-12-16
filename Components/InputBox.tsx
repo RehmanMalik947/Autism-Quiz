@@ -1,30 +1,49 @@
-import { StyleSheet, Text, TextInput, View, ViewStyle } from 'react-native';
+// src/Components/InputBox.tsx
 import React from 'react';
-import { RADIUS } from '../Constants/Constants';
+import {
+  TextInput,
+  View,
+  StyleSheet,
+  TextInputProps,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
+import { COLORS } from '../Constants/Constants';
 
-interface InputProps {
-  placeholder?: string;
-  style?: ViewStyle;
+interface InputBoxProps extends TextInputProps {
+  containerStyle?: StyleProp<ViewStyle>;
 }
-const InputBox = ({ placeholder, style }: InputProps) => {
+
+const InputBox: React.FC<InputBoxProps> = ({
+  containerStyle,
+  style,
+  ...rest
+}) => {
   return (
-    <TextInput
-      style={[TextInputStyles.input, style, { backgroundColor: "#E8F0F2" }]}
-      placeholder={placeholder}
-    ></TextInput>
+    <View style={[styles.container, containerStyle]}>
+      <TextInput
+        {...rest}
+        style={[styles.input, style]}
+        placeholderTextColor="#999"
+        autoCapitalize="none"
+      />
+    </View>
   );
 };
 
-export default InputBox;
-
-const TextInputStyles = StyleSheet.create({
-  input: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+const styles = StyleSheet.create({
+  container: {
     width: '90%',
-    height: 54,
-    borderRadius: RADIUS.sm,
-    padding:16
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: COLORS.secondary ?? '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: 'black',
   },
 });
+
+export default InputBox;

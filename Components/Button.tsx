@@ -15,13 +15,15 @@ interface ButtonProps {
   TextColor?: string;
   OnPress?:()=>void,
   defaultWidth?:string
+  disabled?:boolean
 }
 
-const Button = ({ ButtonText, style, TextColor, ButtonBg,OnPress,defaultWidth }: ButtonProps) => {
+const Button = ({ ButtonText, style, TextColor, ButtonBg,OnPress,defaultWidth, disabled }: ButtonProps) => {
   return (
     <TouchableOpacity
       style={[ButtonStyles.btn, style, { backgroundColor: ButtonBg }]}
       onPress={OnPress}
+      disabled={disabled}
     >
       <Text style={{ color: TextColor ,fontWeight:'bold',fontSize:16}}>{ButtonText}</Text>
     </TouchableOpacity>
