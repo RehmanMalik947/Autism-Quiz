@@ -11,6 +11,7 @@ import HomeScreen from '../Screens/HomeScreen';
 import QuizTypeScreen from '../Screens/QuizTypeScreen';
 import ProfileScreen from '../Screens/ProfileScreen'; // Pointing to EditProfile for now
 import ResourcesScreen from '../Screens/ResourcesScreen';
+import ProfileSettingScreen from '../Screens/ProfileSettingScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -51,6 +52,8 @@ const BottomTabs = () => {
             iconName = focused ? 'bookmark' : 'bookmark-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           // Return the icon component
@@ -62,6 +65,7 @@ const BottomTabs = () => {
       <Tab.Screen name="Quizzes" component={QuizTypeScreen} />
       <Tab.Screen name="Resources" component={ResourcesScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Settings" component={ProfileSettingScreen} />
       
     </Tab.Navigator>
   );

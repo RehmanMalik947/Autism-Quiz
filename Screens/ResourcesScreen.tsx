@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,77 +7,90 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../Hooks/useTypedNavigation';
+import apiService from '../Services/apiService';
 
-// Icons
-import { 
-  ArrowLeft, 
-  Search, 
-  BookOpen, 
-  Users, 
-  Heart, 
-  HelpCircle 
-} from 'lucide-react-native';
-
-// Constants
-import {
-  COLORS,
-  FONTSIZES,
-  FONTWEIGHTS,
-  SPACING,
-  RADIUS,
-} from '../Constants/Constants';
-
-// Components
+import { ArrowLeft, Search, BookOpen, Users, Heart, HelpCircle } from 'lucide-react-native';
+import { COLORS, FONTSIZES, FONTWEIGHTS, SPACING, RADIUS } from '../Constants/Constants';
 import Header from '../Components/Header';
 
 const CATEGORIES = [
-  { id: 1, title: 'Articles', icon: <BookOpen size={24} color={COLORS.text} /> },
-  { id: 2, title: 'Support Groups', icon: <Users size={24} color={COLORS.text} /> },
-  { id: 3, title: 'Therapy', icon: <Heart size={24} color={COLORS.text} /> },
-  { id: 4, title: 'FAQs', icon: <HelpCircle size={24} color={COLORS.text} /> },
-];
-
-const FEATURED_DATA = [
-  {
-    id: 1,
-    tag: 'Article',
-    title: 'Understanding Autism Spectrum Disorder',
-    description: 'A comprehensive guide to understanding the nuances of autism, its symptoms, and how it affects individuals.',
-    imageColor: '#F5E6D3', // Beige/Peach color from screenshot
-    // image: require('../public/images/art1.png'), // Uncomment if you have real images
-  },
-  {
-    id: 2,
-    tag: 'Support Group',
-    title: 'Autism Support Network',
-    description: 'Connect with other families and individuals affected by autism. Share experiences and find support.',
-    imageColor: '#F0E4D7', // Light pinkish beige
-    // image: require('../public/images/art2.png'),
-  },
+  { id: 1, title: 'Articles', type: 'article', icon: <BookOpen size={24} color={COLORS.text} /> },
+  { id: 2, title: 'Support Groups', type: 'support_group', icon: <Users size={24} color={COLORS.text} /> },
+  { id: 3, title: 'Therapy', type: 'therapy', icon: <Heart size={24} color={COLORS.text} /> },
+  { id: 4, title: 'FAQs', type: 'faq', icon: <HelpCircle size={24} color={COLORS.text} /> },
 ];
 
 const ResourcesScreen = () => {
   const navigation = useTypedNavigation();
+
+  const [resources, setResources] = useState([]);             // all resources
+  const [filteredResources, setFilteredResources] = useState([]); // displayed resources
+  const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Fetch resources
+  const fetchResources = async () => {
+    try {
+      setLoading(true);
+      const res = await apiService.get('/resources');
+      const allResources = res.data.resources || [];
+      setResources(allResources);
+
+      // initially show featured resources
+      const featuredResources = allResources.filter(r => r.is_featured === 1 || r.is_featured === true);
+      setFilteredResources(featuredResources);
+    } catch (error) {
+      console.log('Error fetching resources:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
+  // Handle search input
+  const handleSearch = (text: string) => {
+    setSearchText(text);
+    const filtered = resources.filter(r =>
+      (!selectedCategory || r.type === selectedCategory) &&
+      r.title.toLowerCase().includes(text.toLowerCase())
+    );
+    setFilteredResources(filtered);
+  };
+
+  // Handle category click
+  const handleCategoryPress = (category) => {
+    if (selectedCategory === category.type) {
+      // If same category clicked, reset to featured
+      setSelectedCategory(null);
+      setFilteredResources(resources.filter(r => r.is_featured === 1 || r.is_featured === true));
+    } else {
+      setSelectedCategory(category.type);
+      const filtered = resources.filter(r =>
+        r.type === category.type &&
+        r.title.toLowerCase().includes(searchText.toLowerCase())
+      );
+      setFilteredResources(filtered);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header */}
-      <Header 
-        title="Resources" 
-        leftIcon={<ArrowLeft color={COLORS.text} />} 
-        onPressLeft={() => navigation.goBack()} 
+      <Header
+        title="Resources"
+        leftIcon={<ArrowLeft color={COLORS.text} />}
+        onPressLeft={() => navigation.goBack()}
       />
 
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        
-        {/* Search Bar */}
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Search */}
         <View style={styles.searchContainer}>
           <Search color={COLORS.mutedText} size={20} style={styles.searchIcon} />
           <TextInput
@@ -85,61 +98,55 @@ const ResourcesScreen = () => {
             placeholder="Search resources"
             placeholderTextColor={COLORS.mutedText}
             value={searchText}
-            onChangeText={setSearchText}
+            onChangeText={handleSearch}
           />
         </View>
 
-        {/* Categories Grid */}
+        {/* Categories */}
         <Text style={styles.sectionTitle}>Categories</Text>
         <View style={styles.categoriesGrid}>
           {CATEGORIES.map((cat) => (
-            <TouchableOpacity 
-              key={cat.id} 
+            <TouchableOpacity
+              key={cat.id}
               style={styles.categoryCard}
               activeOpacity={0.7}
+              onPress={() => handleCategoryPress(cat)}
             >
-              <View style={styles.catIconWrapper}>
-                {cat.icon}
-              </View>
+              <View style={styles.catIconWrapper}>{cat.icon}</View>
               <Text style={styles.catTitle}>{cat.title}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Featured Section */}
+        {/* Resources */}
         <Text style={styles.sectionTitle}>Featured</Text>
-        <View style={styles.featuredList}>
-          {FEATURED_DATA.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.featuredCard} activeOpacity={0.8}>
-              
-              {/* Left Side: Text */}
-              <View style={styles.featuredContent}>
-                <Text style={styles.tagText}>{item.tag}</Text>
-                <Text style={styles.featuredTitle}>{item.title}</Text>
-                <Text style={styles.featuredDesc} numberOfLines={3}>
-                  {item.description}
-                </Text>
-              </View>
-
-              {/* Right Side: Image Placeholder */}
-              <View style={[styles.imagePlaceholder, { backgroundColor: item.imageColor }]}>
-                {/* 
-                   If you have real images, use:
-                   <Image source={item.image} style={styles.featuredImage} />
-                */}
-                {/* Abstract shape for demo purposes */}
-                <View style={styles.abstractShape} />
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-
+        {loading ? (
+          <ActivityIndicator size="large" style={{ marginVertical: 50 }} />
+        ) : filteredResources.length === 0 ? (
+          <Text style={{ textAlign: 'center', marginVertical: 50 }}>No resources found</Text>
+        ) : (
+          <View style={styles.featuredList}>
+            {filteredResources.map((item) => (
+              <TouchableOpacity key={item.id} style={styles.featuredCard} activeOpacity={0.8}>
+                <View style={styles.featuredContent}>
+                  <Text style={styles.tagText}>{item.type}</Text>
+                  <Text style={styles.featuredTitle}>{item.title}</Text>
+                  <Text style={styles.featuredDesc} numberOfLines={3}>{item.description}</Text>
+                </View>
+                <View style={[styles.imagePlaceholder, { backgroundColor: item.imageColor || '#F5E6D3' }]}>
+                  {item.image ? <Image source={{ uri: item.image }} style={styles.featuredImage} /> : <View style={styles.abstractShape} />}
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 export default ResourcesScreen;
+
 
 const styles = StyleSheet.create({
   safeArea: {
