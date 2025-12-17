@@ -9,9 +9,8 @@ import { COLORS, FONTSIZES } from '../Constants/Constants';
 // Import your Screens
 import HomeScreen from '../Screens/HomeScreen';
 import QuizTypeScreen from '../Screens/QuizTypeScreen';
-// Create placeholders if you haven't built these yet
 import ProfileScreen from '../Screens/ProfileScreen'; // Pointing to EditProfile for now
-const ResourcesScreen = () => <View style={{flex:1, backgroundColor:'white'}}><Text>Resources</Text></View>;
+import ResourcesScreen from '../Screens/ResourcesScreen';
 
 const Tab = createBottomTabNavigator();
 

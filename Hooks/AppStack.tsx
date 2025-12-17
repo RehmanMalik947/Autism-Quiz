@@ -5,7 +5,7 @@ import QuizScreen from '../Screens/QuizScreen';
 import QuizResultScreen from '../Screens/QuizResultScreen';
 import ProfileSettingScreen from '../Screens/ProfileSettingScreen';
 import QuizTypeScreen from '../Screens/QuizTypeScreen';
-import HomeScreen from '../Screens/HomeScreen';
+import ResourcesScreen from '../Screens/ResourcesScreen';
 export type AppStackParamList = {
   Tabs: undefined;
   Profile: undefined;
@@ -26,7 +26,7 @@ export function AppStack() {
       <Stack.Screen name="Quiz" component={QuizScreen} />
       <Stack.Screen name="QuizResult" component={QuizResultScreen} />
       <Stack.Screen name="ProfileSetting" component={ProfileSettingScreen} />
-    
+      <Stack.Screen name="Resources" component={ResourcesScreen} />
     </Stack.Navigator>
   );
 }

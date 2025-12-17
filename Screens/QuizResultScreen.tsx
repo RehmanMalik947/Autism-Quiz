@@ -5,12 +5,12 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRoute } from '@react-navigation/native';
 import { useTypedNavigation } from '../Hooks/useTypedNavigation';
 
-// Icons (Using lucide-react-native as seen in your Header)
+// Icons
 import { ArrowLeft, User, Users, BookOpen, Home } from 'lucide-react-native';
 
 // Constants
@@ -35,26 +35,27 @@ const SUBSCALE_SCORES = [
 
 const QuizResultScreen = () => {
   const navigation = useTypedNavigation();
+  const route = useRoute<any>();
 
-  // Mock Total Score (In real app, pass this via route.params)
-  const totalScore = 35;
+  // Get score and title from params
+  const totalScore = route.params?.score ?? 0;
+  const quizTitle = route.params?.quizTitle ?? 'Quiz Result';
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header 
-        title="Quiz Results" 
-        leftIcon={<ArrowLeft color={COLORS.text} />} 
-        onPressLeft={() => navigation.navigate('App' as any)} 
+      <Header
+        title={quizTitle}
+        leftIcon={<ArrowLeft color={COLORS.text} />}
+        onPressLeft={() => navigation.navigate('App' as any)}
       />
 
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent} 
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        
         {/* Title Section */}
         <Text style={styles.pageTitle}>
-          Your Autism Spectrum Quotient (AQ) Score
+          Your Score for {quizTitle}
         </Text>
 
         {/* Score Card */}
@@ -64,7 +65,7 @@ const QuizResultScreen = () => {
         </View>
 
         <Text style={styles.description}>
-          Your score suggests a higher likelihood of autistic traits. 
+          Your score suggests a higher likelihood of autistic traits.
           This is not a diagnosis, but a starting point for further exploration.
         </Text>
 
@@ -77,7 +78,6 @@ const QuizResultScreen = () => {
             <View key={index} style={styles.chartRow}>
               <Text style={styles.chartLabel}>{item.label}</Text>
               <View style={styles.chartBarBackground}>
-                {/* Visualizing score width */}
                 <View style={[styles.chartBarFill, { width: `${item.score}%` }]} />
               </View>
             </View>
@@ -88,8 +88,6 @@ const QuizResultScreen = () => {
         <Text style={styles.sectionTitle}>Recommendations</Text>
 
         <View style={styles.recommendationsList}>
-          
-          {/* Card 1: Consult */}
           <TouchableOpacity style={styles.recCard} activeOpacity={0.8}>
             <View style={styles.iconBox}>
               <User color={COLORS.text} size={24} />
@@ -102,7 +100,6 @@ const QuizResultScreen = () => {
             </View>
           </TouchableOpacity>
 
-          {/* Card 2: Support Group */}
           <TouchableOpacity style={styles.recCard} activeOpacity={0.8}>
             <View style={styles.iconBox}>
               <Users color={COLORS.text} size={24} />
@@ -115,7 +112,6 @@ const QuizResultScreen = () => {
             </View>
           </TouchableOpacity>
 
-          {/* Card 3: Education */}
           <TouchableOpacity style={styles.recCard} activeOpacity={0.8}>
             <View style={styles.iconBox}>
               <BookOpen color={COLORS.text} size={24} />
@@ -127,28 +123,25 @@ const QuizResultScreen = () => {
               </Text>
             </View>
           </TouchableOpacity>
-
         </View>
 
         {/* Go Home Button */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.homeButton}
-                onPress={() => navigation.navigate('App' as any)}
+          onPress={() => navigation.navigate('App' as any)}
         >
           <Home color={COLORS.background} size={20} />
           <Text style={styles.homeButtonText}>Return to Home</Text>
         </TouchableOpacity>
 
-        {/* Padding for bottom safety */}
+        {/* Bottom Padding */}
         <View style={{ height: SPACING.xxl }} />
-
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default QuizResultScreen;
-
+// --- STYLESHEET DEFINITION MOVED HERE ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -158,10 +151,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.md,
   },
-  
+
   // Header Area
   pageTitle: {
-    fontSize: FONTSIZES.h3, 
+    fontSize: FONTSIZES.h3,
     fontWeight: FONTWEIGHTS.bold,
     color: COLORS.text,
     textAlign: 'center',
@@ -185,7 +178,7 @@ const styles = StyleSheet.create({
     fontWeight: FONTWEIGHTS.medium,
   },
   scoreValue: {
-    fontSize: 36, 
+    fontSize: 36,
     fontWeight: FONTWEIGHTS.bold,
     color: COLORS.text,
   },
@@ -221,13 +214,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   chartLabel: {
-    width: '40%', 
+    width: '40%',
     fontSize: FONTSIZES.bodySmall,
     color: COLORS.primary, // Using primary blue for text based on screenshot hint
     fontWeight: FONTWEIGHTS.bold,
   },
   chartBarBackground: {
-    width: '55%', 
+    width: '55%',
     height: 12,
     backgroundColor: '#E5E7EB', // Gray background for bar
     borderRadius: RADIUS.sm,
@@ -247,7 +240,7 @@ const styles = StyleSheet.create({
   recCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#F9FAFB', 
+    backgroundColor: '#F9FAFB',
     padding: SPACING.md,
     borderRadius: RADIUS.md,
   },
@@ -271,7 +264,7 @@ const styles = StyleSheet.create({
   },
   recDesc: {
     fontSize: FONTSIZES.bodySmall,
-    color: '#6B7280', 
+    color: '#6B7280',
     lineHeight: 20,
   },
 
@@ -291,3 +284,5 @@ const styles = StyleSheet.create({
     fontWeight: FONTWEIGHTS.bold,
   },
 });
+
+export default QuizResultScreen;

@@ -11,6 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { useTypedNavigation } from '../Hooks/useTypedNavigation';
 import apiService from '../Services/apiService';
+import type { RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 // Constants
 import {
@@ -24,106 +26,122 @@ import {
 // Components
 import Header from '../Components/Header';
 import { ArrowLeft } from 'lucide-react-native';
+type RootStackParamList = {
+  QuizScreen: {
+    quizId: number;
+    title: string;
+  };
+  QuizResult: {
+    assessmentId: number;
+    score: number;
+    quizTitle: string;
+  };
+};
 
 const QuizScreen = () => {
-  const navigation = useTypedNavigation();
-  const route = useRoute();
+const navigation = useTypedNavigation();
+const route = useRoute<RouteProp<RootStackParamList, 'QuizScreen'>>();
 
-  // Get title from previous screen
-  // @ts-ignore
-  const quizTitle = route.params?.title || "Autism Spectrum Quotient (AQ) Test";
+
+
+  const quizTitle = route.params?.title ?? 'Autism Spectrum Quotient (AQ) Test';
 
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: number }>({});
 
-  // Helper to transform API data
-  const extractQuestions = (quizData: any) => {
-    if (!quizData || !quizData.Questions) return [];
-    return quizData.Questions.map((q: any) => ({
+  const extractQuestions = (data: any) => {
+    const questions = data?.quiz?.Questions ?? [];
+    return questions.map((q: any) => ({
       id: q.id,
       text: q.questionText,
-      options: q.QuestionOptions?.map((opt: any) => ({
+      options: q.QuestionOptions.map((opt: any) => ({
         id: opt.id,
         label: opt.optionText,
         value: opt.optionValue,
-      })) || [],
+      })),
     }));
   };
 
   useEffect(() => {
     const loadQuestions = async () => {
       try {
-        const quizId = route.params?.quizId || 1;
-        const res = await apiService.get(`quizzes/${quizId}`);
-        console.log("Fetched questions:", res.data);
-
-        const questionsArray = extractQuestions(res.data.quiz);
-        setQuestions(questionsArray);
-      } catch (err) {
-        console.log("Error loading questions:", err);
-        Alert.alert("Failed to load questions", "Please try again later.");
+        const quizId = route.params?.quizId ?? 1;
+        const res = await apiService.get(`/quizzes/${quizId}/questions`);
+        const parsedQuestions = extractQuestions(res.data);
+        setQuestions(parsedQuestions);
+      } catch (error) {
+        console.log('❌ QUIZ API ERROR', error);
+        Alert.alert('Error', 'Failed to load quiz questions');
       } finally {
         setLoading(false);
       }
     };
-
     loadQuestions();
   }, []);
 
-  // Loading state
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <Text style={{ textAlign: 'center', marginTop: 50 }}>
-          Loading questions...
-        </Text>
-      </SafeAreaView>
-    );
-  }
+  if (loading) return <Text style={{ textAlign: 'center', marginTop: 50 }}>Loading questions...</Text>;
+  if (!questions.length) return <Text style={{ textAlign: 'center', marginTop: 50 }}>No questions available</Text>;
 
-  // No questions fallback
-  if (!questions.length) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <Text style={{ textAlign: 'center', marginTop: 50 }}>
-          No questions available
-        </Text>
-      </SafeAreaView>
-    );
-  }
-
-  const currentQuestion = questions[currentIndex] || { text: '', options: [] };
+  const currentQuestion = questions[currentIndex];
   const totalQuestions = questions.length;
-
   const progressPercent = ((currentIndex + 1) / totalQuestions) * 100;
 
   const handleSelectOption = (value: number) => {
-    setAnswers(prev => ({
-      ...prev,
-      [currentIndex]: value
-    }));
+    setAnswers(prev => ({ ...prev, [currentIndex]: value }));
   };
 
-  const handlePrevious = () => {
-    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
-  };
-
-  const handleNext = () => {
+  const handleNext = async () => {
     if (answers[currentIndex] === undefined) {
-      Alert.alert("Selection Required", "Please select an answer to proceed.");
+      Alert.alert('Required', 'Please select an option');
       return;
     }
 
     if (currentIndex < totalQuestions - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      const totalScore = Object.values(answers).reduce((sum, val) => sum + val, 0);
-      console.log("Quiz Finished! Score:", totalScore);
-      // @ts-ignore
-      navigation.navigate('QuizResult', { score: totalScore });
+      setCurrentIndex(prev => prev + 1);
+      return;
     }
+
+    const totalScore = Object.values(answers).reduce((sum, v) => sum + v, 0);
+    const quizId = route.params?.quizId ?? 1;
+
+    try {
+      const assessmentRes = await apiService.post('assessments', { quiz_id: quizId });
+      const assessmentId = assessmentRes.data.assessment.id; // ✅ fixed
+
+      const formattedAnswers = Object.keys(answers).map(index => {
+        const question = questions[Number(index)];
+        const selectedValue = answers[Number(index)];
+
+        const option = question.options.find(o => String(o.value) === String(selectedValue));
+        if (!option) throw new Error(`No option found for question ${question.id}`);
+
+        return {
+          question_id: question.id,
+          answer_value: selectedValue,
+          option_id: option.id,
+        };
+      });
+
+     const res = await apiService.post(`assessments/${assessmentId}/answers`, { answers: formattedAnswers });
+      console.log(res);
+      navigation.navigate('QuizResult', {
+        assessmentId,
+        score: totalScore,
+        quizTitle
+      });
+
+    } catch (error) {
+      console.log('❌ ASSESSMENT API ERROR', error);
+      Alert.alert('Error', 'Failed to submit quiz assessment');
+    }
+  };
+
+
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
   };
 
   return (
@@ -150,16 +168,15 @@ const QuizScreen = () => {
 
         {/* Options */}
         <View style={styles.optionsContainer}>
-          {currentQuestion.options.map((option: any) => {
-            const isSelected = answers[currentIndex] === option.value;
+          {currentQuestion.options.map(option => {
+            const selected = answers[currentIndex] === option.value;
             return (
               <TouchableOpacity
                 key={option.id}
-                style={[styles.optionButton, isSelected && styles.optionButtonSelected]}
+                style={[styles.optionButton, selected && styles.optionButtonSelected]}
                 onPress={() => handleSelectOption(option.value)}
-                activeOpacity={0.7}
               >
-                <Text style={[styles.optionText, isSelected && styles.optionTextSelected]}>
+                <Text style={[styles.optionText, selected && styles.optionTextSelected]}>
                   {option.label}
                 </Text>
               </TouchableOpacity>
@@ -168,27 +185,18 @@ const QuizScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Footer Navigation */}
+      {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[
-            styles.navButton,
-            styles.prevButton,
-            currentIndex === 0 && styles.disabledButton
-          ]}
-          onPress={handlePrevious}
           disabled={currentIndex === 0}
+          onPress={handlePrevious}
+          style={[styles.navButton, styles.prevButton, currentIndex === 0 && styles.disabledButton]}
         >
           <Text style={styles.prevButtonText}>Previous</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.navButton, styles.nextButton]}
-          onPress={handleNext}
-        >
-          <Text style={styles.nextButtonText}>
-            {currentIndex === totalQuestions - 1 ? "Finish" : "Next"}
-          </Text>
+        <TouchableOpacity onPress={handleNext} style={[styles.navButton, styles.nextButton]}>
+          <Text style={styles.nextButtonText}>{currentIndex === totalQuestions - 1 ? 'Finish' : 'Next'}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
