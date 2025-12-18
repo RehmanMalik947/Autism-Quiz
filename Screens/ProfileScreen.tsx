@@ -7,10 +7,10 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../Hooks/useTypedNavigation';
-
 // Constants
 import {
   COLORS,
@@ -23,35 +23,55 @@ import {
 // Components
 import Button from '../Components/Button';
 import Spacer from '../Components/Spacer';
+import apiService from '../Services/apiService';
 
 const EditProfileScreen = () => {
   const navigation = useTypedNavigation();
 
+
+
   // State for form fields
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
+  const [loading, setLoaiding] = useState(false);
+  const handleSaveChanges = async () => {
+
+    try {
+      setLoaiding(true);
+      const res = await apiService.put('user/profile', { name, age:age ? Number(age): null });
+      Alert.alert('Success', 'Profile Updated Successfully');
+      navigation.goBack();
+      setLoaiding(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+    finally {
+      setLoaiding(false);
+    }
+
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      
+
       {/* Custom Header with Close Icon */}
       <View style={styles.headerContainer}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
           style={styles.closeButton}
         >
           {/* Simple X text icon, or replace with your Icon component (e.g., <Ionicons name="close" />) */}
           <Text style={styles.closeIcon}>✕</Text>
         </TouchableOpacity>
-        
+
         <Text style={styles.headerTitle}>Edit Profile</Text>
-        
+
         {/* Invisible view to balance the title in the center */}
         <View style={styles.closeButton} />
       </View>
 
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent} 
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <Spacer />
@@ -102,14 +122,12 @@ const EditProfileScreen = () => {
       {/* Footer Button */}
       <View style={styles.footer}>
         <Button
-          ButtonText="Save Changes"
+          ButtonText={loading ? 'Saving.. ' : 'Save Changes'}
           TextColor="white"
           ButtonBg={COLORS.primary}
           style={{ width: '100%' }}
-          OnPress={() => {
-            console.log('Saved:', { name, age });
-            navigation.navigate('QuizType');
-          }}
+          disabled={loading}
+          OnPress={handleSaveChanges}
         />
       </View>
 
