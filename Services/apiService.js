@@ -3,7 +3,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // You can replace this with your environment config
-const API_URL = "http://192.168.10.9:3000/api/";
+const API_URL = "https://quizzes.eversols.com/api/";
 
 class ApiService { 
   constructor() {  
