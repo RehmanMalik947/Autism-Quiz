@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthStack } from './Hooks/AuthStack';
 import { AppStack } from './Hooks/AppStack';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -17,10 +18,12 @@ export default function App() {
   }, []);
 
   return (
+    <SafeAreaProvider>
     <NavigationContainer>
       {isLoggedIn ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
-  );
+    </SafeAreaProvider> 
+     );
 }
 
 
